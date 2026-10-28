@@ -49,13 +49,13 @@ Open-XiaoAI 采用了经典的 **Client-Server 架构** 与 **端云/边缘协�
 
 ```mermaid
 graph TD
-    subgraph 音箱端侧硬件与系统 (ARMv7 Linux / OpenWrt)
+    subgraph ClientBox ["音箱端侧硬件与系统 (ARMv7 Linux / OpenWrt)"]
         MIC["麦克风阵列 (A113 PDM)"]
         SPK["扬声器驱动 (ALSA aplay)"]
         AIVS["官方 AIVS 核心进程 (mico_aivs_lab)"]
         UBUS["系统 IPC 总线 (ubus / pnshelper)"]
         
-        subgraph Client-Rust 代理
+        subgraph ClientRust ["Client-Rust 代理"]
             REC["音频录制 (arecord S32_LE -> S16_LE)"]
             PLY["音频播放队列 (aplay raw)"]
             MON["系统监控器 (FileMonitor / 状态轮询)"]
@@ -71,19 +71,19 @@ graph TD
         WS_CLI --> PLY
     end
 
-    subgraph 局域网 / 外部 Server (Node.js / Python / Docker)
+    subgraph ServerBox ["局域网 / 外部 Server (Node.js / Python / Docker)"]
         WS_SRV["WebSocket 服务端 (:4399)"]
         VAD_KWS["VAD 语音活动检测 & 唤醒词识别"]
         AGENT_ROUTER["交互中枢与打断逻辑"]
         
-        subgraph 上层业务生态
+        subgraph Ecosystem ["上层业务生态"]
             MIGPT["MiGPT-Next (大模型对话)"]
             XIAOZHI["小智 AI (xiaozhi-esp32 协议)"]
             GEMINI["Gemini Live (全双工双向实时语音)"]
             STEREO["Stereo (双音箱局域网立体声组网)"]
         end
         
-        WS_CLI <== WebSocket (局域网) ==> WS_SRV
+        WS_CLI <-->|"WebSocket (局域网)"| WS_SRV
         WS_SRV <--> AGENT_ROUTER
         AGENT_ROUTER <--> VAD_KWS
         AGENT_ROUTER <--> MIGPT
